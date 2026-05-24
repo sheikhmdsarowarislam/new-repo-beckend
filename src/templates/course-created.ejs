@@ -1,0 +1,93 @@
+<%
+  const courseCreatedContent = `
+    <h2>🎉 Course Created Successfully!</h2>
+    
+    <p>Hello <strong>${instructorName}</strong>,</p>
+    
+    <p>Congratulations! Your new course has been successfully created on the CodeTutor LMS platform. We're excited to see the amazing content you'll create and the students you'll inspire!</p>
+    
+    <div class="highlight-box">
+      <h3>📚 Course Details</h3>
+      <div style="text-align: center; margin: 20px 0;">
+        <h4 style="color: #495057; font-size: 24px; margin-bottom: 15px;">"${courseTitle}"</h4>
+        <p style="color: #6c757d; font-size: 16px;">Currently in <strong>draft status</strong> - ready for content creation!</p>
+      </div>
+    </div>
+    
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="${editCourseUrl}" class="cta-button">
+        ✏️ Start Building Your Course
+      </a>
+    </div>
+    
+    <div class="divider"></div>
+    
+    <h3>🚀 Your Course Creation Journey</h3>
+    <p>Your course is now ready for content creation. Here's your roadmap to success:</p>
+    
+    <div class="info-card">
+      <h4>📖 Content Development</h4>
+      <ul style="color: #495057; line-height: 1.8; padding-left: 20px; margin-top: 10px;">
+        <li>Create engaging chapters to organize your content logically</li>
+        <li>Add high-quality video lectures and tutorials</li>
+        <li>Include comprehensive reading materials and resources</li>
+        <li>Develop interactive quizzes and assessments</li>
+        <li>Set up discussion forums for student engagement</li>
+      </ul>
+    </div>
+    
+    <div class="info-card">
+      <h4>🎯 Course Optimization</h4>
+      <ul style="color: #495057; line-height: 1.8; padding-left: 20px; margin-top: 10px;">
+        <li>Write compelling course descriptions and learning objectives</li>
+        <li>Create an attractive course thumbnail and promotional materials</li>
+        <li>Set appropriate pricing and enrollment options</li>
+        <li>Add course prerequisites and target audience information</li>
+        <li>Configure course completion requirements and certificates</li>
+      </ul>
+    </div>
+    
+    <div class="info-card">
+      <h4>📊 Publishing & Promotion</h4>
+      <ul style="color: #495057; line-height: 1.8; padding-left: 20px; margin-top: 10px;">
+        <li>Review all content thoroughly before publishing</li>
+        <li>Test course navigation and functionality</li>
+        <li>Gather feedback from beta students or colleagues</li>
+        <li>Promote your course through social media and networks</li>
+        <li>Monitor student engagement and course analytics</li>
+      </ul>
+    </div>
+    
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="${editCourseUrl}" class="cta-button" style="background: linear-gradient(135deg, #10b981 0%, #047857 100%);">
+        🎯 Continue Course Development
+      </a>
+    </div>
+    
+    <h3>💡 Pro Tips for Course Success</h3>
+    <ul style="color: #495057; line-height: 1.8; padding-left: 20px;">
+      <li>Plan your course structure and learning objectives before adding content</li>
+      <li>Use clear, engaging titles and descriptions that appeal to your target audience</li>
+      <li>Include interactive elements like quizzes and discussions to keep students engaged</li>
+      <li>Test your content on different devices to ensure accessibility</li>
+      <li>Gather feedback from beta students to improve before public launch</li>
+      <li>Create a consistent schedule for content updates and student engagement</li>
+    </ul>
+    
+    <div class="info-card">
+      <h4>📞 Support Resources</h4>
+      <p>Need help along the way? We're here to support your teaching journey:</p>
+      <ul style="color: #495057; line-height: 1.8; padding-left: 20px; margin-top: 10px;">
+        <li>Access our comprehensive instructor resources and guides</li>
+        <li>Join our instructor community for tips and collaboration</li>
+        <li>Contact our support team for technical assistance</li>
+        <li>Schedule a consultation for personalized guidance</li>
+      </ul>
+    </div>
+    
+    <p style="text-align: center; color: #6c757d; font-size: 14px; margin-top: 30px;">
+      Ready to inspire learners worldwide? Let's build something amazing together! 🌟
+    </p>
+  `;
+%>
+<%- include('./base-email', { title: 'Course Created Successfully - CodeTutor LMS', content: courseCreatedContent }) %>

@@ -1,0 +1,70 @@
+<%
+  const contentHtml = `
+    <h2>🏆 Congratulations! You've Earned a Certificate!</h2>
+    
+    <p>Dear <strong>${studentName}</strong>,</p>
+    
+    <p>We are absolutely thrilled to inform you that you have successfully completed your course and earned an official certificate! Your dedication and hard work have truly paid off.</p>
+    
+    <div class="highlight-box">
+      <h3>🎓 Course Completion Details</h3>
+      <div style="text-align: center; margin: 20px 0;">
+        <h4 style="color: #495057; font-size: 24px; margin-bottom: 15px;">${courseTitle}</h4>
+        <p style="color: #6c757d; font-size: 16px; margin-bottom: 10px;"><strong>Completion Date:</strong> ${completionDate}</p>
+        <p style="color: #6c757d; font-size: 16px;"><strong>Certificate ID:</strong> ${certificateId}</p>
+      </div>
+    </div>
+    
+    <div class="info-card">
+      <h4>📜 Your Certificate is Ready!</h4>
+      <p>Your official certificate has been generated and is ready for download. This certificate:</p>
+      <ul style="color: #495057; line-height: 1.8; padding-left: 20px; margin-top: 10px;">
+        <li>Verifies your successful completion of the course</li>
+        <li>Can be shared on LinkedIn and your resume</li>
+        <li>Includes a unique verification code</li>
+        <li>Is valid for lifetime access</li>
+      </ul>
+    </div>
+    
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="${certificateUrl}" class="cta-button">
+        📥 Download Your Certificate
+      </a>
+    </div>
+    
+    <div class="divider"></div>
+    
+    <h3>🌟 What This Achievement Means</h3>
+    <p>Completing this course demonstrates your commitment to continuous learning and professional development. You've gained valuable knowledge and skills that will benefit you in your career and personal growth.</p>
+    
+    <div class="info-card">
+      <h4>🎯 Next Steps</h4>
+      <ul style="color: #495057; line-height: 1.8; padding-left: 20px;">
+        <li>Download and save your certificate</li>
+        <li>Share your achievement on social media</li>
+        <li>Add it to your LinkedIn profile</li>
+        <li>Include it in your resume</li>
+        <li>Explore more courses to continue learning</li>
+      </ul>
+    </div>
+    
+    <div class="info-card">
+      <h4>🔗 Certificate Verification</h4>
+      <p>Your certificate can be verified anytime using the following link:</p>
+      <p style="word-break: break-all; background: #f8f9fa; padding: 10px; border-radius: 4px; font-family: monospace; font-size: 14px;">
+        <a href="${certificateUrl}" style="color: #667eea;">${certificateUrl}</a>
+      </p>
+    </div>
+    
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="${(process.env.FRONTEND_URL || 'http://localhost:3000')}/dashboard" class="cta-button">
+        🎯 View My Dashboard
+      </a>
+    </div>
+    
+    <p style="text-align: center; color: #6c757d; font-size: 14px; margin-top: 30px;">
+      Keep up the great work! We're excited to see what you'll learn next! 🚀
+    </p>
+  `;
+%>
+<%- include('./base-email', { title: 'Certificate Earned - CodeTutor LMS', content: contentHtml }) %>

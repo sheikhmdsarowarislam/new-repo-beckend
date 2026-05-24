@@ -1,0 +1,96 @@
+<%
+  const stars = '⭐'.repeat(rating);
+  const reviewContent = `
+    <h2>⭐ New Review Received!</h2>
+    
+    <p>Hello <strong>${instructorName}</strong>,</p>
+    
+    <p>Fantastic news! One of your students has taken the time to leave a review for your course. Student feedback is incredibly valuable for improving your teaching and helping other learners make informed decisions about their education.</p>
+    
+    <div class="highlight-box">
+      <h3>📝 Review Details</h3>
+      <div style="text-align: center; margin: 20px 0;">
+        <h4 style="color: #495057; font-size: 24px; margin-bottom: 15px;">${courseTitle}</h4>
+        <div style="font-size: 28px; color: #ffc107; margin: 15px 0;">
+          ${stars}
+        </div>
+        <p style="color: #6c757d; font-size: 16px;"><strong>${rating}-star review</strong></p>
+      </div>
+    </div>
+    
+    <div class="info-card">
+      <h4>💬 Student Feedback</h4>
+      <p style="font-style: italic; color: #495057; padding: 20px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 8px; border-left: 4px solid #667eea; margin: 0;">
+        "${reviewText || 'No additional comments provided, but the rating speaks for itself!'}"
+      </p>
+    </div>
+    
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="${courseUrl}" class="cta-button">
+        📚 View Course Reviews
+      </a>
+    </div>
+    
+    <div class="divider"></div>
+    
+    <h3>🎯 Why Reviews Matter</h3>
+    <p>Student reviews are a powerful tool that helps you:</p>
+    
+    <div class="info-card">
+      <h4>📊 Course Improvement</h4>
+      <ul style="color: #495057; line-height: 1.8; padding-left: 20px; margin-top: 10px;">
+        <li>Understand what students value most about your course</li>
+        <li>Identify specific areas for improvement and enhancement</li>
+        <li>Gain insights into student learning experiences</li>
+        <li>Discover what teaching methods resonate best with learners</li>
+      </ul>
+    </div>
+    
+    <div class="info-card">
+      <h4>🚀 Growth & Credibility</h4>
+      <ul style="color: #495057; line-height: 1.8; padding-left: 20px; margin-top: 10px;">
+        <li>Build trust and credibility with potential students</li>
+        <li>Attract more enrollments through social proof</li>
+        <li>Differentiate your course in competitive markets</li>
+        <li>Create a positive reputation in the learning community</li>
+      </ul>
+    </div>
+    
+    <div class="info-card">
+      <h4>💡 Pro Tips for Review Management</h4>
+      <ul style="color: #495057; line-height: 1.8; padding-left: 20px; margin-top: 10px;">
+        <li>Respond thoughtfully to reviews to show you value student feedback</li>
+        <li>Use constructive feedback to implement meaningful course improvements</li>
+        <li>Encourage students to leave detailed, helpful reviews</li>
+        <li>Thank students for their honest feedback and time</li>
+        <li>Address any concerns raised in reviews promptly</li>
+      </ul>
+    </div>
+    
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="${courseUrl}" class="cta-button" style="background: linear-gradient(135deg, #10b981 0%, #047857 100%);">
+        🎯 Respond to Review
+      </a>
+    </div>
+    
+    <h3>🌟 Your Impact</h3>
+    <p>Every review represents a student whose life you've impacted through education. Your dedication to teaching is making a real difference in the learning community!</p>
+    
+    <div class="info-card">
+      <h4>📈 Next Steps</h4>
+      <ul style="color: #495057; line-height: 1.8; padding-left: 20px; margin-top: 10px;">
+        <li>Consider how this feedback aligns with your teaching goals</li>
+        <li>Share positive aspects with your teaching network</li>
+        <li>Use insights to enhance future course content</li>
+        <li>Continue engaging with your student community</li>
+      </ul>
+    </div>
+    
+    <p style="text-align: center; color: #6c757d; font-size: 14px; margin-top: 30px;">
+      Keep up the excellent work! Your commitment to quality education is inspiring students worldwide. 🌟🎓
+    </p>
+  `;
+%>
+<%- include('./base-email', { title: 'New Review Received - CodeTutor LMS', content: reviewContent }) %>
+
+

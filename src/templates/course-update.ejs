@@ -1,0 +1,93 @@
+<%
+  const courseUpdateContent = `
+    <h2>📚 Course Content Updated!</h2>
+    
+    <p>Hello <strong>${studentName}</strong>,</p>
+    
+    <p>Exciting news! The course you're enrolled in has been updated with fresh content. Your instructor is continuously working to enhance your learning experience and provide you with the most current and valuable information!</p>
+    
+    <div class="highlight-box">
+      <h3>🆕 What's New in ${courseTitle}</h3>
+      <div style="text-align: center; margin: 20px 0;">
+        <p style="color: #495057; font-size: 16px; margin-bottom: 10px;"><strong>Update Type:</strong> ${updateType}</p>
+        <p style="color: #6c757d; font-size: 14px;"><strong>Updated:</strong> ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+      </div>
+    </div>
+    
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="${courseUrl}" class="cta-button">
+        📚 View Updated Course
+      </a>
+    </div>
+    
+    <div class="divider"></div>
+    
+    <h3>🌟 New Content Available</h3>
+    <p>Your instructor has added fresh content to enhance your learning experience. This might include:</p>
+    
+    <div class="info-card">
+      <h4>📖 Learning Materials</h4>
+      <ul style="color: #495057; line-height: 1.8; padding-left: 20px; margin-top: 10px;">
+        <li>New video lectures and interactive tutorials</li>
+        <li>Updated reading materials and resources</li>
+        <li>Additional practice exercises and hands-on activities</li>
+        <li>Enhanced course notes and study guides</li>
+      </ul>
+    </div>
+    
+    <div class="info-card">
+      <h4>🎯 Assessments & Activities</h4>
+      <ul style="color: #495057; line-height: 1.8; padding-left: 20px; margin-top: 10px;">
+        <li>New quizzes and knowledge checks</li>
+        <li>Updated assignments and projects</li>
+        <li>Enhanced discussion topics and forums</li>
+        <li>Interactive learning activities</li>
+      </ul>
+    </div>
+    
+    <div class="info-card">
+      <h4>🔧 Course Improvements</h4>
+      <ul style="color: #495057; line-height: 1.8; padding-left: 20px; margin-top: 10px;">
+        <li>Improved course navigation and structure</li>
+        <li>Updated course requirements and objectives</li>
+        <li>Enhanced mobile accessibility</li>
+        <li>Better integration of multimedia content</li>
+      </ul>
+    </div>
+    
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="${courseUrl}" class="cta-button" style="background: linear-gradient(135deg, #10b981 0%, #047857 100%);">
+        🎯 Explore New Content
+      </a>
+    </div>
+    
+    <h3>💡 Make the Most of Your Learning</h3>
+    <p>To maximize your learning experience with the updated content:</p>
+    <ul style="color: #495057; line-height: 1.8; padding-left: 20px;">
+      <li>Check your course regularly for new content and announcements</li>
+      <li>Complete new assignments and quizzes to reinforce learning</li>
+      <li>Participate actively in updated discussion forums</li>
+      <li>Review any changes to course requirements or completion criteria</li>
+      <li>Engage with fellow students to discuss new content</li>
+      <li>Provide feedback to your instructor about the updates</li>
+    </ul>
+    
+    <div class="info-card">
+      <h4>📞 Need Help?</h4>
+      <p>If you have questions about the updates or need assistance:</p>
+      <ul style="color: #495057; line-height: 1.8; padding-left: 20px; margin-top: 10px;">
+        <li>Contact your instructor through the course discussion forum</li>
+        <li>Reach out to our support team for technical assistance</li>
+        <li>Check the course FAQ section for common questions</li>
+        <li>Join study groups to connect with other students</li>
+      </ul>
+    </div>
+    
+    <p style="text-align: center; color: #6c757d; font-size: 14px; margin-top: 30px;">
+      Happy learning! We're excited to see how you'll benefit from these course improvements! 🎓✨
+    </p>
+  `;
+%>
+<%- include('./base-email', { title: 'Course Updated - CodeTutor LMS', content: courseUpdateContent }) %>
+
+

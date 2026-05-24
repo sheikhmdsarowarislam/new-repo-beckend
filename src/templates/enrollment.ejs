@@ -1,0 +1,75 @@
+<%
+  const enrollContent = `
+    <h2>🎉 Enrollment Confirmed!</h2>
+
+    <p>Hello <strong>${studentName}</strong>,</p>
+
+    <p>
+      Congratulations on enrolling in <strong>${courseTitle}</strong>! We're thrilled to have you in the CodeTutor LMS community. Your learning journey starts now.
+    </p>
+
+    <div class="highlight-box">
+      <h3>📚 Course Details</h3>
+      <p>
+        You now have full access to <strong>${courseTitle}</strong>. Dive into video lectures, resources, and hands-on activities at your own pace.
+      </p>
+    </div>
+
+    <div style="text-align: center; margin: 20px 0;">
+      <a href="${dashboardUrl}" class="cta-button">🚀 Start Learning Now</a>
+    </div>
+
+    <div class="divider"></div>
+
+    <h3>🌟 What’s Next</h3>
+    <p>Make the most of your course with these key areas:</p>
+
+    <div class="info-card">
+      <h4>📖 Access Premium Content</h4>
+      <ul>
+        <li>High-quality video lectures and structured modules</li>
+        <li>Downloadable resources and reading materials</li>
+        <li>Interactive quizzes and practical exercises</li>
+        <li>Progress tracking across all lessons</li>
+      </ul>
+    </div>
+
+    <div class="info-card">
+      <h4>💬 Join the Community</h4>
+      <ul>
+        <li>Ask questions and get help from instructors</li>
+        <li>Participate in discussions with fellow learners</li>
+        <li>Share your progress and celebrate milestones</li>
+        <li>Collaborate on projects and study groups</li>
+      </ul>
+    </div>
+
+    <div class="info-card">
+      <h4>🏆 Earn Your Certificate</h4>
+      <ul>
+        <li>Complete lessons and quizzes to unlock your certificate</li>
+        <li>Showcase your achievement on LinkedIn and your resume</li>
+        <li>Download a verified certificate upon completion</li>
+      </ul>
+    </div>
+
+    <div style="text-align: center; margin: 10px 0 0 0;">
+      <a href="${dashboardUrl}" class="cta-button">🎯 Go to My Dashboard</a>
+    </div>
+
+    <div class="divider"></div>
+
+    <h3>💡 Tips for Success</h3>
+    <ul>
+      <li>Schedule regular study sessions for consistent progress</li>
+      <li>Take notes and practice concepts you learn</li>
+      <li>Engage with the community when you have questions</li>
+      <li>Track your progress and celebrate small wins</li>
+    </ul>
+
+    <p style="text-align: center; color: #6c757d; font-size: 14px; margin-top: 10px;">
+      Need help? Contact our support team at <a href="mailto:support@codetutor.com">support@codetutor.com</a>.
+    </p>
+  `;
+%>
+<%- include('./base-email', { title: 'Enrollment Confirmed - CodeTutor LMS', content: enrollContent }) %>

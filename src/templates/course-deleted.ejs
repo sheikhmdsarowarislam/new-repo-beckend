@@ -1,0 +1,94 @@
+<%
+  const courseDeletedContent = `
+    <h2>❌ Course Deleted</h2>
+    
+    <p>Hello <strong>${instructorName}</strong>,</p>
+    
+    <p>We're writing to inform you that your course has been permanently deleted from the CodeTutor LMS platform. We understand this might be disappointing, and we want to support you in your teaching journey.</p>
+    
+    <div class="highlight-box" style="background: linear-gradient(135deg, #fee2e2 0%, #fef2f2 100%); border-left: 4px solid #ef4444;">
+      <h3 style="color: #991b1b;">📚 Deleted Course</h3>
+      <div style="text-align: center; margin: 20px 0;">
+        <h4 style="color: #991b1b; font-size: 24px; margin-bottom: 15px;">"${courseTitle}"</h4>
+        <p style="color: #dc2626; font-size: 16px;">⚠️ This action cannot be undone</p>
+      </div>
+    </div>
+    
+    <div class="info-card">
+      <h4>⚠️ Important Information</h4>
+      <ul style="color: #495057; line-height: 1.8; padding-left: 20px; margin-top: 10px;">
+        <li>All course content has been permanently removed from our servers</li>
+        <li>Student enrollments have been automatically cancelled</li>
+        <li>Course analytics, progress data, and certificates have been deleted</li>
+        <li>All associated files, videos, and resources are no longer accessible</li>
+        <li>This action is irreversible and cannot be restored</li>
+      </ul>
+    </div>
+    
+    ${createNewCourseUrl ? `
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="${createNewCourseUrl}" class="cta-button" style="background: linear-gradient(135deg, #10b981 0%, #047857 100%);">
+        ➕ Create New Course
+      </a>
+    </div>
+    ` : ''}
+    
+    <div class="divider"></div>
+    
+    <h3>🔄 Moving Forward</h3>
+    <p>While this chapter has closed, your teaching journey continues. Here's how you can move forward:</p>
+    
+    <div class="info-card">
+      <h4>🎯 Next Steps</h4>
+      <ul style="color: #495057; line-height: 1.8; padding-left: 20px; margin-top: 10px;">
+        <li>Create a new course with fresh, improved content</li>
+        <li>Apply lessons learned to enhance your future courses</li>
+        <li>Take advantage of our updated course creation tools</li>
+        <li>Explore new teaching methodologies and formats</li>
+      </ul>
+    </div>
+    
+    <div class="info-card">
+      <h4>💡 Learning Opportunity</h4>
+      <p>Every experience is a chance to grow. Consider:</p>
+      <ul style="color: #495057; line-height: 1.8; padding-left: 20px; margin-top: 10px;">
+        <li>What worked well in your previous course that you can replicate</li>
+        <li>Areas for improvement based on student feedback</li>
+        <li>New topics or skills you'd like to teach</li>
+        <li>Different course formats that might engage students better</li>
+      </ul>
+    </div>
+    
+    <div class="info-card">
+      <h4>🛠️ Available Resources</h4>
+      <ul style="color: #495057; line-height: 1.8; padding-left: 20px; margin-top: 10px;">
+        <li>Access our comprehensive instructor resources and guides</li>
+        <li>Join our instructor community for tips and collaboration</li>
+        <li>Review our best practices for course creation</li>
+        <li>Schedule a consultation for personalized guidance</li>
+      </ul>
+    </div>
+    
+    <div style="text-align: center; margin: 30px 0;">
+      ${createNewCourseUrl ? `
+      <a href="${createNewCourseUrl}" class="cta-button" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        🚀 Start Fresh Course
+      </a>
+      ` : ''}
+    </div>
+    
+    <h3>📞 We're Here to Help</h3>
+    <p>If you have any questions about this deletion or need assistance with your next course:</p>
+    <ul style="color: #495057; line-height: 1.8; padding-left: 20px;">
+      <li>Contact our support team for technical assistance</li>
+      <li>Reach out for guidance on course creation strategies</li>
+      <li>Get help with content planning and organization</li>
+      <li>Discuss marketing and promotion strategies</li>
+    </ul>
+    
+    <p style="text-align: center; color: #6c757d; font-size: 14px; margin-top: 30px;">
+      We appreciate your understanding and look forward to supporting your future teaching endeavors. Every great instructor learns and grows from their experiences! 🌟
+    </p>
+  `;
+%>
+<%- include('./base-email', { title: 'Course Deleted - CodeTutor LMS', content: courseDeletedContent }) %>

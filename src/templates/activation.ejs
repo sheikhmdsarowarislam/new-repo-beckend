@@ -1,0 +1,73 @@
+<%
+  const activationContent = `
+    <h2>🎉 Welcome to CodeTutor LMS!</h2>
+    
+    <p>Hello <strong>${name}</strong>,</p>
+    
+    <p>Thank you for joining CodeTutor LMS! We're absolutely thrilled to have you as part of our vibrant learning community. Get ready to embark on an incredible journey of knowledge and growth!</p>
+    
+    <div class="highlight-box">
+      <h3>🔑 Activate Your Account</h3>
+      <p>To complete your registration and unlock your learning potential, please activate your account using the secure code below:</p>
+      
+      <div style="text-align: center; margin: 25px 0;">
+        <div style="display: inline-block; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border: 2px dashed #667eea; font-size: 32px; font-weight: bold; letter-spacing: 8px; padding: 20px 40px; border-radius: 12px; color: #495057; font-family: 'Courier New', monospace; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);">
+          ${activationCode}
+        </div>
+      </div>
+      
+      <p style="text-align: center; color: #6c757d; font-size: 14px;">
+        ⏰ This code expires in <strong>24 hours</strong> for your security
+      </p>
+    </div>
+    
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="${(process.env.FRONTEND_URL || 'http://localhost:3000')}/activate?email=${email}&code=${activationCode}" class="cta-button">
+        🚀 Activate My Account
+      </a>
+    </div>
+    
+    <div class="divider"></div>
+    
+    <h3>🌟 What Awaits You</h3>
+    <p>Once your account is activated, you'll unlock access to our comprehensive learning ecosystem:</p>
+    
+    <div class="info-card">
+      <h4>🎯 Core Features</h4>
+      <ul style="color: #495057; line-height: 1.8; padding-left: 20px;">
+        <li>Browse our extensive catalog of premium courses</li>
+        <li>Enroll in courses tailored to your interests and career goals</li>
+        <li>Track your learning progress with detailed analytics</li>
+        <li>Earn verified certificates upon course completion</li>
+        <li>Join vibrant community discussions and study groups</li>
+        <li>Access mobile learning on any device, anywhere</li>
+      </ul>
+    </div>
+    
+    <div class="info-card">
+      <h4>💡 Success Tips</h4>
+      <ul style="color: #495057; line-height: 1.8; padding-left: 20px;">
+        <li>Complete your profile to receive personalized course recommendations</li>
+        <li>Set clear learning goals to maintain motivation</li>
+        <li>Join study groups to connect with fellow learners</li>
+        <li>Follow your favorite instructors for exclusive updates</li>
+        <li>Participate in community discussions to deepen your understanding</li>
+      </ul>
+    </div>
+    
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="${(process.env.FRONTEND_URL || 'http://localhost:3000')}/courses" class="cta-button" style="background: linear-gradient(135deg, #10b981 0%, #047857 100%);">
+        📚 Explore Courses
+      </a>
+    </div>
+    
+    <p style="color: #6c757d; font-size: 14px; text-align: center; margin-top: 20px;">
+      Having trouble? You can also manually enter the code: <strong>${activationCode}</strong>
+    </p>
+    
+    <p style="text-align: center; color: #6c757d; font-size: 14px; margin-top: 30px;">
+      Welcome aboard! We can't wait to see what amazing things you'll learn and achieve! 🎓✨
+    </p>
+  `;
+%>
+<%- include('./base-email', { title: 'Activate Your Account - CodeTutor LMS', content: activationContent }) %>

@@ -1,0 +1,89 @@
+<%
+  const courseUpdatedContent = `
+    <h2>✅ Course Updated Successfully!</h2>
+    
+    <p>Hello <strong>${instructorName}</strong>,</p>
+    
+    <p>Excellent work! Your course has been successfully updated on the CodeTutor LMS platform. All changes are now live and your students will benefit from the improvements you've made!</p>
+    
+    <div class="highlight-box">
+      <h3>📚 Updated Course</h3>
+      <div style="text-align: center; margin: 20px 0;">
+        <h4 style="color: #495057; font-size: 24px; margin-bottom: 15px;">"${courseTitle}"</h4>
+        <p style="color: #6c757d; font-size: 16px;">🎯 All updates are now live and active!</p>
+      </div>
+    </div>
+    
+    <div style="text-align: center; margin: 30px 0;">
+      ${viewCourseUrl ? `<a href="${viewCourseUrl}" class="cta-button" style="margin-right: 10px;">👀 View Updated Course</a>` : ''}
+      ${editCourseUrl ? `<a href="${editCourseUrl}" class="cta-button" style="background: linear-gradient(135deg, #10b981 0%, #047857 100%);">✏️ Continue Editing</a>` : ''}
+    </div>
+    
+    <div class="divider"></div>
+    
+    <h3>🚀 What's New in Your Course?</h3>
+    <p>Your course content has been refreshed with the latest improvements. This might include:</p>
+    
+    <div class="info-card">
+      <h4>📖 Content Enhancements</h4>
+      <ul style="color: #495057; line-height: 1.8; padding-left: 20px; margin-top: 10px;">
+        <li>Updated course information and descriptions</li>
+        <li>New lectures or updated video content</li>
+        <li>Revised reading materials and resources</li>
+        <li>Enhanced course thumbnails and promotional materials</li>
+        <li>Modified pricing or enrollment settings</li>
+      </ul>
+    </div>
+    
+    <div class="info-card">
+      <h4>🎯 Interactive Elements</h4>
+      <ul style="color: #495057; line-height: 1.8; padding-left: 20px; margin-top: 10px;">
+        <li>Revised quizzes and assessments</li>
+        <li>New interactive exercises and activities</li>
+        <li>Updated discussion prompts and forums</li>
+        <li>Improved course structure and navigation</li>
+        <li>Changes to course requirements or prerequisites</li>
+      </ul>
+    </div>
+    
+    <div class="info-card">
+      <h4>🔧 Technical Improvements</h4>
+      <ul style="color: #495057; line-height: 1.8; padding-left: 20px; margin-top: 10px;">
+        <li>Bug fixes and performance optimizations</li>
+        <li>Updated links and resource accessibility</li>
+        <li>Enhanced mobile responsiveness</li>
+        <li>Improved course analytics and tracking</li>
+      </ul>
+    </div>
+    
+    <div style="text-align: center; margin: 30px 0;">
+      ${viewCourseUrl ? `<a href="${viewCourseUrl}" class="cta-button" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">🎯 Preview Course Updates</a>` : ''}
+    </div>
+    
+    <h3>💡 Best Practices for Course Updates</h3>
+    <ul style="color: #495057; line-height: 1.8; padding-left: 20px;">
+      <li>Review your course thoroughly to ensure everything looks correct</li>
+      <li>Notify enrolled students about significant content updates via announcements</li>
+      <li>Monitor student feedback and engagement metrics on the new content</li>
+      <li>Update your course marketing materials if needed</li>
+      <li>Test all new links, resources, and interactive elements</li>
+      <li>Keep your course content fresh and relevant to current industry trends</li>
+    </ul>
+    
+    <div class="info-card">
+      <h4>📊 Monitor Your Impact</h4>
+      <p>After your updates go live, keep an eye on:</p>
+      <ul style="color: #495057; line-height: 1.8; padding-left: 20px; margin-top: 10px;">
+        <li>Student engagement rates and completion metrics</li>
+        <li>Course enrollment trends and popularity</li>
+        <li>Feedback and ratings from course reviews</li>
+        <li>Discussion activity and student participation</li>
+      </ul>
+    </div>
+    
+    <p style="text-align: center; color: #6c757d; font-size: 14px; margin-top: 30px;">
+      Thank you for continuously improving your course and providing exceptional learning experiences for your students! 🌟
+    </p>
+  `;
+%>
+<%- include('./base-email', { title: 'Course Updated Successfully - CodeTutor LMS', content: courseUpdatedContent }) %>
