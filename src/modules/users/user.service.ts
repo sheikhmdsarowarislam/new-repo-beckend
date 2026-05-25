@@ -49,7 +49,7 @@ export const registerUser = async (userData: {
 
     await saveUser(newUser);
 
-    await sendEmail(email, "Activate Your Account - CodeTutor LMS", "activation", { 
+    await sendEmail(email, "Activate Your Account - Skilledustore", "activation", { 
       activationCode, 
       name: name,
       email: email 
@@ -161,7 +161,7 @@ export const resendActivationCode = async (email: string): Promise<ServiceRespon
 
     await saveUser(user);
 
-    await sendEmail(email, "Activate Your Account - CodeTutor LMS", "activation", { 
+    await sendEmail(email, "Activate Your Account - Skilledustore", "activation", { 
       activationCode, 
       name: user.name,
       email: email 

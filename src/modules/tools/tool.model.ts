@@ -50,19 +50,18 @@ const ToolSchema = new Schema<ITool>(
       },
     },
 
-    // accessLink: required only for regular tools, not packages
+    // accessLink: HTML button code string or plain URL — just non-empty for regular tools
     accessLink: {
       type: String,
       default: "",
       validate: {
         validator: function (this: ITool, v: string) {
-          // If it's a package, accessLink can be empty
+          // Packages don't need an accessLink
           if (this.isPackage) return true;
-          // For regular tools, must be a valid URL
-          if (!v) return false;
-          try { new URL(v); return true; } catch { return false; }
+          // Regular tools just need a non-empty value (HTML button or URL)
+          return !!v && v.trim().length > 0;
         },
-        message: "Must be a valid URL",
+        message: "Access button HTML is required for regular tools",
       },
     },
 
