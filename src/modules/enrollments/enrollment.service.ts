@@ -1123,11 +1123,33 @@ export const submitToolPayment = async ({
 }): Promise<ServiceResponse<any>> => {
   try {
     const existing = await Enrollment.findOne({
-      student: new Types.ObjectId(studentId),
-      tool: new Types.ObjectId(toolId),
-      paymentStatus: { $in: ["paid", "free", "pending"] },
-    });
-    if (existing) return { success: false, message: "You already have access to this tool.", errors: [] };
+  student: new Types.ObjectId(studentId),
+  tool: new Types.ObjectId(toolId),
+  paymentStatus: { $in: ["paid", "free", "pending"] },
+});
+
+// ✅ Expired check যোগ করুন
+if (existing) {
+  const isExpired =
+    existing.paymentStatus === "paid" &&
+    existing.validUntil &&
+    new Date() > new Date(existing.validUntil);
+
+  if (isExpired) {
+    // Expired হলে allow করুন নতুন enrollment
+    // পুরনোটা expired করে দিন
+    await Enrollment.updateOne(
+      { _id: existing._id },
+      { paymentStatus: "expired" }
+    );
+  } else {
+    return { 
+      success: false, 
+      message: "You already have access to this tool.", 
+      errors: [] 
+    };
+  }
+}
 
     const tool = await Tool.findById(toolId).lean();
     if (!tool) return { success: false, message: "Tool not found.", errors: [] };
