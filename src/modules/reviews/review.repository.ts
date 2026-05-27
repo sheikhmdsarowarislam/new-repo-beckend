@@ -10,29 +10,31 @@ export const findReviewById = (reviewId: string, session?: ClientSession): Promi
   return Review.findById(reviewId)
     .populate('user', 'name avatar')
     .populate('course', 'title thumbnail')
-    .lean() // OPTIMIZATION: Use lean for better performance
-    .session(session || null);
+    .lean<IReview>()
+    .session(session || null)
+    .exec();
 };
 
 export const findReviewByUserAndCourse = (
-  userId: string, 
-  courseId: string, 
+  userId: string,
+  courseId: string,
   session?: ClientSession
 ): Promise<IReview | null> => {
   return Review.findOne({ user: userId, course: courseId })
     .populate('user', 'name avatar')
-    .lean() // OPTIMIZATION: Use lean for better performance
-    .session(session || null);
+    .lean<IReview>()
+    .session(session || null)
+    .exec();
 };
 
 export const findReviewsByCourse = (
-  courseId: string, 
+  courseId: string,
   options: any = {},
   session?: ClientSession
 ): Promise<IReview[]> => {
   const { page = 1, limit = 10, sortBy = 'createdAt', sortOrder = 'desc' } = options;
   const skip = (page - 1) * limit;
-  
+
   const sortObj: any = {};
   sortObj[sortBy] = sortOrder === 'asc' ? 1 : -1;
 
@@ -41,12 +43,13 @@ export const findReviewsByCourse = (
     .sort(sortObj)
     .skip(skip)
     .limit(limit)
-    .lean() // OPTIMIZATION: Use lean for better performance
-    .session(session || null);
+    .lean<IReview[]>()
+    .session(session || null)
+    .exec();
 };
 
 export const findReviewsByUser = (
-  userId: string, 
+  userId: string,
   options: any = {},
   session?: ClientSession
 ): Promise<IReview[]> => {
@@ -58,18 +61,23 @@ export const findReviewsByUser = (
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit)
-    .lean() // OPTIMIZATION: Use lean for better performance
-    .session(session || null);
+    .lean<IReview[]>()
+    .session(session || null)
+    .exec();
 };
 
-
 export const countReviewsByCourse = (courseId: string, session?: ClientSession): Promise<number> => {
-  return Review.countDocuments({ course: courseId }).session(session || null);
+  return Review.countDocuments({ course: courseId })
+    .session(session || null)
+    .exec();
 };
 
 export const countReviewsByUser = (userId: string, session?: ClientSession): Promise<number> => {
-  return Review.countDocuments({ user: userId }).session(session || null);
+  return Review.countDocuments({ user: userId })
+    .session(session || null)
+    .exec();
 };
+
 
 // --- WRITE Operations ---
 
@@ -83,35 +91,46 @@ export const createReview = (data: Partial<IReview>, session?: ClientSession): P
 };
 
 export const updateReviewById = (
-  reviewId: string, 
-  updateData: Partial<IReview>, 
+  reviewId: string,
+  updateData: Partial<IReview>,
   session?: ClientSession
 ): Promise<IReview | null> => {
-  return Review.findByIdAndUpdate(reviewId, updateData, { 
-    new: true, 
-    runValidators: true 
-  }).populate('user', 'name avatar').session(session || null);
+  return Review.findByIdAndUpdate(reviewId, updateData, {
+    new: true,
+    runValidators: true
+  })
+    .populate('user', 'name avatar')
+    .lean<IReview>()
+    .session(session || null)
+    .exec();
 };
 
 export const deleteReviewById = (reviewId: string, session?: ClientSession): Promise<IReview | null> => {
-  return Review.findByIdAndDelete(reviewId).session(session || null);
+  return Review.findByIdAndDelete(reviewId)
+    .lean<IReview>()
+    .session(session || null)
+    .exec();
 };
 
 
 // --- BULK Operations ---
 
 export const bulkDeleteReviewsByCourse = async (courseId: string, session?: ClientSession): Promise<void> => {
-  await Review.deleteMany({ course: courseId }).session(session || null);
+  await Review.deleteMany({ course: courseId })
+    .session(session || null)
+    .exec();
 };
 
 export const bulkDeleteReviewsByUser = async (userId: string, session?: ClientSession): Promise<void> => {
-  await Review.deleteMany({ user: userId }).session(session || null);
+  await Review.deleteMany({ user: userId })
+    .session(session || null)
+    .exec();
 };
+
 
 // --- AGGREGATION Operations ---
 
 export const aggregateCourseReviewStats = async (courseId: string): Promise<any> => {
-  // OPTIMIZATION: Use more efficient aggregation pipeline
   return Review.aggregate([
     { $match: { course: new Types.ObjectId(courseId) } },
     {
@@ -142,5 +161,3 @@ export const aggregateCourseReviewStats = async (courseId: string): Promise<any>
     }
   ]);
 };
-
-

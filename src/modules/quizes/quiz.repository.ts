@@ -10,37 +10,45 @@ export type QuizQueryOptions = {
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
   includeQuestions?: boolean;
-  userId?: string; // For enrollment filtering
+  userId?: string;
 };
 
 // --- READ Operations ---
 
 export const findQuizById = (quizId: string, session?: ClientSession): Promise<IQuiz | null> => {
-  return QuizModel.findById(quizId).session(session || null);
+  return QuizModel.findById(quizId)
+    .lean<IQuiz>()
+    .session(session || null)
+    .exec();
 };
 
 export const findQuizzesByChapter = (chapterId: string, session?: ClientSession): Promise<IQuiz[]> => {
-  return QuizModel.find({ chapter: chapterId }).sort({ order: 1 }).session(session || null);
+  return QuizModel.find({ chapter: chapterId })
+    .sort({ order: 1 })
+    .lean<IQuiz[]>()
+    .session(session || null)
+    .exec();
 };
 
 export const findQuizzesByCourse = (courseId: string, session?: ClientSession): Promise<IQuiz[]> => {
   return QuizModel.find({ course: courseId })
     .populate('chapter', 'title order')
     .sort({ order: 1 })
-    .session(session || null);
+    .lean<IQuiz[]>()
+    .session(session || null)
+    .exec();
 };
 
-// Optimized function for getting quiz metadata without full questions
 export const findQuizzesByCourseOptimized = (courseId: string, session?: ClientSession): Promise<IQuiz[]> => {
   return QuizModel.find({ course: courseId })
     .select('_id title order chapter course createdAt updatedAt')
     .populate('chapter', 'title order')
     .sort({ order: 1 })
-    .lean()
-    .session(session || null);
+    .lean<IQuiz[]>()
+    .session(session || null)
+    .exec();
 };
 
-// Optimized function for getting quiz count and basic stats
 export const getQuizStatsByCourse = async (courseId: string, session?: ClientSession): Promise<{
   totalQuizzes: number;
   totalQuestions: number;
@@ -61,15 +69,16 @@ export const getQuizStatsByCourse = async (courseId: string, session?: ClientSes
   return stats[0] || { totalQuizzes: 0, totalQuestions: 0, averageQuestionsPerQuiz: 0 };
 };
 
-
-// Removed complex enrollment check aggregation - access control handled at route level
-
 export const countQuizzesByChapter = (chapterId: string, session?: ClientSession): Promise<number> => {
-  return QuizModel.countDocuments({ chapter: chapterId }).session(session || null);
+  return QuizModel.countDocuments({ chapter: chapterId })
+    .session(session || null)
+    .exec();
 };
 
 export const countQuizzesByCourse = (courseId: string, session?: ClientSession): Promise<number> => {
-  return QuizModel.countDocuments({ course: courseId }).session(session || null);
+  return QuizModel.countDocuments({ course: courseId })
+    .session(session || null)
+    .exec();
 };
 
 // --- WRITE Operations ---
@@ -84,44 +93,54 @@ export const createQuiz = (data: Partial<IQuiz>, session?: ClientSession): Promi
 };
 
 export const updateQuizById = (
-  quizId: string, 
-  updateData: Partial<IQuiz>, 
+  quizId: string,
+  updateData: Partial<IQuiz>,
   session?: ClientSession
 ): Promise<IQuiz | null> => {
-  return QuizModel.findByIdAndUpdate(quizId, updateData, { 
-    new: true, 
-    runValidators: true 
-  }).session(session || null);
+  return QuizModel.findByIdAndUpdate(quizId, updateData, {
+    new: true,
+    runValidators: true
+  })
+    .lean<IQuiz>()
+    .session(session || null)
+    .exec();
 };
 
 export const deleteQuizById = (quizId: string, session?: ClientSession): Promise<IQuiz | null> => {
-  return QuizModel.findByIdAndDelete(quizId).session(session || null);
+  return QuizModel.findByIdAndDelete(quizId)
+    .lean<IQuiz>()
+    .session(session || null)
+    .exec();
 };
 
 // --- BULK Operations ---
 
 export const bulkUpdateQuizzes = async (
-  operations: Array<{ quizId: string; order: number }>, 
+  operations: Array<{ quizId: string; order: number }>,
   session?: ClientSession
 ): Promise<void> => {
   const bulkOps = operations.map((op) => ({
-    updateOne: { 
-      filter: { _id: op.quizId }, 
-      update: { $set: { order: op.order } } 
+    updateOne: {
+      filter: { _id: op.quizId },
+      update: { $set: { order: op.order } }
     },
   }));
-  
+
   if (bulkOps.length > 0) {
     await QuizModel.bulkWrite(bulkOps, { session: session || undefined, ordered: true });
   }
 };
 
 export const bulkDeleteQuizzesByChapter = async (chapterId: string, session?: ClientSession): Promise<void> => {
-  await QuizModel.deleteMany({ chapter: chapterId }).session(session || null);
+  await QuizModel.deleteMany({ chapter: chapterId })
+    .session(session || null)
+    .exec();
 };
 
 export const bulkDeleteQuizzesByCourse = async (courseId: string, session?: ClientSession): Promise<void> => {
-  await QuizModel.deleteMany({ course: courseId }).session(session || null);
+  await QuizModel.deleteMany({ course: courseId })
+    .session(session || null)
+    .exec();
 };
 
 // --- AGGREGATION Operations ---
@@ -133,18 +152,13 @@ export const aggregateQuizStats = async (courseId: string): Promise<any> => {
       $group: {
         _id: "$course",
         totalQuizzes: { $sum: 1 },
-        totalQuestions: { 
-          $sum: { $size: "$questions" } 
-        },
-        averageQuestionsPerQuiz: { 
-          $avg: { $size: "$questions" } 
-        }
+        totalQuestions: { $sum: { $size: "$questions" } },
+        averageQuestionsPerQuiz: { $avg: { $size: "$questions" } }
       }
     }
   ]);
 };
 
-// Simplified aggregation - moved complex logic to service layer
 export const getQuizResultsWithProgress = async (courseId: string, userId: string): Promise<any> => {
   return QuizModel.aggregate([
     { $match: { course: new Types.ObjectId(courseId) } },
@@ -175,7 +189,6 @@ export const getQuizResultsWithProgress = async (courseId: string, userId: strin
   ]);
 };
 
-// Bulk quiz operations for better performance
 export const bulkUpdateQuizOrder = async (
   updates: Array<{ quizId: string; order: number }>,
   session?: ClientSession
