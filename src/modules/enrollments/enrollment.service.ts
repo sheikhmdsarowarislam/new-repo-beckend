@@ -1136,11 +1136,12 @@ if (existing) {
     new Date() > new Date(existing.validUntil);
 
   if (isExpired) {
-    // Expired হলে allow করুন নতুন enrollment
-    // পুরনোটা expired করে দিন
     await Enrollment.updateOne(
       { _id: existing._id },
-      { paymentStatus: "expired" }
+      { 
+        paymentStatus: "expired",
+        sourcePackage: null
+      }
     );
   } else {
     return { 
