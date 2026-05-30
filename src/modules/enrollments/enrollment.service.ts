@@ -1131,7 +1131,7 @@ export const submitToolPayment = async ({
 // ✅ Expired check যোগ করুন
 if (existing) {
   const isExpired =
-    existing.paymentStatus === "paid" &&
+    (existing.paymentStatus === "paid" || existing.paymentStatus === "free") &&
     existing.validUntil &&
     new Date() > new Date(existing.validUntil);
 
@@ -1143,6 +1143,12 @@ if (existing) {
         sourcePackage: null
       }
     );
+  } else if (existing.paymentStatus === "pending") {
+    return {
+      success: false,
+      message: "Your payment is already pending. Please wait for approval.",
+      errors: []
+    };
   } else {
     return { 
       success: false, 
