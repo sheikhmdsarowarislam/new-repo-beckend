@@ -1123,40 +1123,36 @@ export const submitToolPayment = async ({
 }): Promise<ServiceResponse<any>> => {
   try {
     const existing = await Enrollment.findOne({
-  student: new Types.ObjectId(studentId),
-  tool: new Types.ObjectId(toolId),
-  paymentStatus: { $in: ["paid", "free", "pending"] },
-});
+      student: new Types.ObjectId(studentId),
+      tool: new Types.ObjectId(toolId),
+      paymentStatus: { $in: ["paid", "free", "pending"] },
+    });
 
-// ✅ Expired check যোগ করুন
-if (existing) {
-  const isExpired =
-    (existing.paymentStatus === "paid" || existing.paymentStatus === "free") &&
-    existing.validUntil &&
-    new Date() > new Date(existing.validUntil);
+    if (existing) {
+      const isExpired =
+        (existing.paymentStatus === "paid" || existing.paymentStatus === "free") &&
+        existing.validUntil &&
+        new Date() > new Date(existing.validUntil);
 
-  if (isExpired) {
-    await Enrollment.updateOne(
-      { _id: existing._id },
-      { 
-        paymentStatus: "expired",
-        sourcePackage: null
+      if (isExpired) {
+        await Enrollment.updateOne(
+          { _id: existing._id },
+          { paymentStatus: "expired", sourcePackage: null }
+        );
+      } else if (existing.paymentStatus === "pending") {
+        return {
+          success: false,
+          message: "Your payment is already pending. Please wait for approval.",
+          errors: [],
+        };
+      } else {
+        return {
+          success: false,
+          message: "You already have access to this tool.",
+          errors: [],
+        };
       }
-    );
-  } else if (existing.paymentStatus === "pending") {
-    return {
-      success: false,
-      message: "Your payment is already pending. Please wait for approval.",
-      errors: []
-    };
-  } else {
-    return { 
-      success: false, 
-      message: "You already have access to this tool.", 
-      errors: [] 
-    };
-  }
-}
+    }
 
     const tool = await Tool.findById(toolId).lean();
     if (!tool) return { success: false, message: "Tool not found.", errors: [] };
@@ -1202,7 +1198,6 @@ if (existing) {
     return { success: false, message: "Failed to submit tool payment.", errors: [error.message] };
   }
 };
-
 // ─────────────────────────────────────────────
 // CHECK TOOL ENROLLMENT STATUS
 // ─────────────────────────────────────────────
@@ -1258,16 +1253,13 @@ export const getUserTools = async (userId: string): Promise<ServiceResponse<any>
 
     const tools = enrollments
       .filter((e: any) => {
-        // sourcePackage থেকে আসা individual tools বাদ দাও pending এ
-        // package নিজে শুধু pending/rejected এ দেখাবে, paid হলে সরে যাবে
         if (e.tool?.isPackage === true && e.paymentStatus === "paid") return false;
-        // sourcePackage থেকে আসা tools শুধু paid/free হলেই দেখাবে
-        if (e.sourcePackage && e.paymentStatus !== "paid" && e.paymentStatus !== "free") return false;
+        if (e.sourcePackage && e.paymentStatus !== "paid" && e.paymentStatus !== "free" && e.paymentStatus !== "expired") return false;
         return true;
       })
       .map((e: any) => {
         const isExpired =
-          e.paymentStatus === "paid" &&
+          (e.paymentStatus === "paid" || e.paymentStatus === "free") &&
           e.validUntil &&
           now > new Date(e.validUntil);
 
