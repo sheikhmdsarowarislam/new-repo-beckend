@@ -1253,10 +1253,14 @@ export const getUserTools = async (userId: string): Promise<ServiceResponse<any>
 
     const tools = enrollments
       .filter((e: any) => {
-        if (e.tool?.isPackage === true && e.paymentStatus === "paid") return false;
-        if (e.sourcePackage && e.paymentStatus !== "paid" && e.paymentStatus !== "free" && e.paymentStatus !== "expired") return false;
-        return true;
-      })
+  // package নিজে paid হলে hide করো
+  if (e.tool?.isPackage === true && e.paymentStatus === "paid") return false;
+  // sourcePackage থেকে আসা tools — paid, free, expired সব দেখাবে
+  // pending, rejected শুধু hide করো
+  if (e.sourcePackage && e.paymentStatus === "pending") return false;
+  if (e.sourcePackage && e.paymentStatus === "rejected") return false;
+  return true;
+})
       .map((e: any) => {
         const isExpired =
           (e.paymentStatus === "paid" || e.paymentStatus === "free") &&
