@@ -979,8 +979,28 @@ const submitToolPayment = async ({ studentId, toolId, transactionId, variationDa
             tool: new mongoose_1.Types.ObjectId(toolId),
             paymentStatus: { $in: ["paid", "free", "pending"] },
         });
-        if (existing)
-            return { success: false, message: "You already have access to this tool.", errors: [] };
+        if (existing) {
+            const isExpired = (existing.paymentStatus === "paid" || existing.paymentStatus === "free") &&
+                existing.validUntil &&
+                new Date() > new Date(existing.validUntil);
+            if (isExpired) {
+                await enrollment_model_1.default.updateOne({ _id: existing._id }, { paymentStatus: "expired", sourcePackage: null });
+            }
+            else if (existing.paymentStatus === "pending") {
+                return {
+                    success: false,
+                    message: "Your payment is already pending. Please wait for approval.",
+                    errors: [],
+                };
+            }
+            else {
+                return {
+                    success: false,
+                    message: "You already have access to this tool.",
+                    errors: [],
+                };
+            }
+        }
         const tool = await tool_model_1.default.findById(toolId).lean();
         if (!tool)
             return { success: false, message: "Tool not found.", errors: [] };
@@ -1073,17 +1093,19 @@ const getUserTools = async (userId) => {
         const now = new Date();
         const tools = enrollments
             .filter((e) => {
-            // sourcePackage থেকে আসা individual tools বাদ দাও pending এ
-            // package নিজে শুধু pending/rejected এ দেখাবে, paid হলে সরে যাবে
+            // package নিজে paid হলে hide করো
             if (e.tool?.isPackage === true && e.paymentStatus === "paid")
                 return false;
-            // sourcePackage থেকে আসা tools শুধু paid/free হলেই দেখাবে
-            if (e.sourcePackage && e.paymentStatus !== "paid" && e.paymentStatus !== "free")
+            // sourcePackage থেকে আসা tools — paid, free, expired সব দেখাবে
+            // pending, rejected শুধু hide করো
+            if (e.sourcePackage && e.paymentStatus === "pending")
+                return false;
+            if (e.sourcePackage && e.paymentStatus === "rejected")
                 return false;
             return true;
         })
             .map((e) => {
-            const isExpired = e.paymentStatus === "paid" &&
+            const isExpired = (e.paymentStatus === "paid" || e.paymentStatus === "free") &&
                 e.validUntil &&
                 now > new Date(e.validUntil);
             return {

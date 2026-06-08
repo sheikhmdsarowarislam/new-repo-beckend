@@ -1110,9 +1110,6 @@ export const getStudentsByInstructor = async (
 // ─────────────────────────────────────────────
 // SUBMIT TOOL PAYMENT
 // ─────────────────────────────────────────────
-// ─────────────────────────────────────────────
-// SUBMIT TOOL PAYMENT
-// ─────────────────────────────────────────────
 export const submitToolPayment = async ({
   studentId,
   toolId,
@@ -1128,28 +1125,27 @@ export const submitToolPayment = async ({
     const existing = await Enrollment.findOne({
       student: new Types.ObjectId(studentId),
       tool: new Types.ObjectId(toolId),
+      paymentStatus: { $in: ["paid", "free", "pending"] },
     });
- 
+
     if (existing) {
       const isExpired =
         (existing.paymentStatus === "paid" || existing.paymentStatus === "free") &&
         existing.validUntil &&
         new Date() > new Date(existing.validUntil);
- 
-      if (existing.paymentStatus === "pending") {
+
+      if (isExpired) {
+        await Enrollment.updateOne(
+          { _id: existing._id },
+          { paymentStatus: "expired", sourcePackage: null }
+        );
+      } else if (existing.paymentStatus === "pending") {
         return {
           success: false,
           message: "Your payment is already pending. Please wait for approval.",
           errors: [],
         };
-      }
- 
-      // ✅ Fix: expired হলে delete করো, তারপর নতুন enrollment create হবে নিচে
-      if (isExpired || existing.paymentStatus === "expired") {
-        await Enrollment.deleteOne({ _id: existing._id });
-        // continue — নিচে নতুন enrollment create হবে
       } else {
-        // এখনো valid — re-purchase allow না
         return {
           success: false,
           message: "You already have access to this tool.",
@@ -1157,19 +1153,19 @@ export const submitToolPayment = async ({
         };
       }
     }
- 
+
     const tool = await Tool.findById(toolId).lean();
     if (!tool) return { success: false, message: "Tool not found.", errors: [] };
- 
+
     let finalPrice = tool.price;
     if (tool.discount > 0) finalPrice = finalPrice - (finalPrice * tool.discount) / 100;
- 
+
     if (variationDays && tool.variations?.length > 0) {
       const variation = tool.variations.find((v: any) => v.days === variationDays);
       if (variation) finalPrice = variation.price;
     }
     finalPrice = Math.round(finalPrice * 100) / 100;
- 
+
     if (finalPrice <= 0) {
       const enrollment = await Enrollment.create({
         student: studentId,
@@ -1182,7 +1178,7 @@ export const submitToolPayment = async ({
       });
       return { success: true, data: enrollment, message: "Tool access granted." };
     }
- 
+
     const enrollment = await Enrollment.create({
       student: studentId,
       tool: toolId,
@@ -1192,7 +1188,7 @@ export const submitToolPayment = async ({
       paymentMethod: "bkash",
       transactionId: transactionId.trim(),
     });
- 
+
     return {
       success: true,
       data: enrollment,
@@ -1240,9 +1236,6 @@ export const checkToolEnrollmentStatus = async (
 // ─────────────────────────────────────────────
 // GET USER TOOLS
 // ─────────────────────────────────────────────
-// ─────────────────────────────────────────────
-// GET USER TOOLS  (package grouping সহ)
-// ─────────────────────────────────────────────
 export const getUserTools = async (userId: string): Promise<ServiceResponse<any>> => {
   try {
     const enrollments = await Enrollment.find({
@@ -1251,107 +1244,37 @@ export const getUserTools = async (userId: string): Promise<ServiceResponse<any>
     })
       .populate({
         path: "tool",
-        select: "name thumbnail accessLink price isPackage includedTools",
-        populate: {
-          path: "includedTools",
-          select: "name thumbnail accessLink price",
-        },
-      })
-      .populate({
-        path: "sourcePackage",
-        select: "name thumbnail",
+        select: "name thumbnail accessLink price isPackage",
       })
       .sort({ createdAt: -1 })
       .lean();
- 
+
     const now = new Date();
- 
-    // expired check helper
-    const checkExpired = (e: any) =>
-      (e.paymentStatus === "paid" || e.paymentStatus === "free") &&
-      e.validUntil &&
-      now > new Date(e.validUntil);
- 
-    // ── Package enrollments (isPackage === true) ──
-    const packageEnrollments = enrollments.filter(
-      (e: any) => e.tool?.isPackage === true
-    );
- 
-    // ── Single tool enrollments (sourcePackage নেই) ──
-    const singleEnrollments = enrollments.filter(
-      (e: any) =>
-        !e.tool?.isPackage &&
-        !e.sourcePackage &&
-        e.paymentStatus !== "rejected"
-    );
- 
-    // ── Package এর ভেতরের tools (sourcePackage আছে) ──
-    const packageChildEnrollments = enrollments.filter(
-      (e: any) => !!e.sourcePackage && e.paymentStatus !== "rejected" && e.paymentStatus !== "pending"
-    );
- 
-    // Package গুলো group করো
-    const packages = packageEnrollments.map((e: any) => {
-      const isExpired = checkExpired(e);
-      const paymentStatus = isExpired ? "expired" : e.paymentStatus;
- 
-      // এই package এর child tools
-      const childTools = packageChildEnrollments
-        .filter((c: any) => c.sourcePackage?._id?.toString() === e.tool?._id?.toString())
-        .map((c: any) => {
-          const childExpired = checkExpired(c);
-          return {
-            enrollmentId: c._id,
-            tool: c.tool,
-            paymentStatus: childExpired ? "expired" : c.paymentStatus,
-            validUntil: c.validUntil || null,
-            isExpired: !!childExpired,
-            sourcePackage: c.sourcePackage,
-          };
-        });
- 
-      return {
-        type: "package" as const,
-        enrollmentId: e._id,
-        package: e.tool,
-        paymentStatus,
-        amountPaid: e.amountPaid,
-        paymentMethod: e.paymentMethod,
-        transactionId: e.transactionId,
-        validUntil: e.validUntil || null,
-        isExpired: !!isExpired,
-        enrolledAt: e.enrollmentDate,
-        tools: childTools,
-      };
-    });
- 
-    // Single tools
-    const singles = singleEnrollments.map((e: any) => {
-      const isExpired = checkExpired(e);
-      return {
-        type: "single" as const,
-        enrollmentId: e._id,
-        tool: e.tool,
-        paymentStatus: isExpired ? "expired" : e.paymentStatus,
-        amountPaid: e.amountPaid,
-        paymentMethod: e.paymentMethod,
-        transactionId: e.transactionId,
-        validUntil: e.validUntil || null,
-        isExpired: !!isExpired,
-        enrolledAt: e.enrollmentDate,
-      };
-    });
- 
-    return {
-      success: true,
-      data: {
-        packages,   // package গুলো — tools array সহ
-        singles,    // single tool গুলো
-      },
-      message: "User tools retrieved",
-    };
+
+    const tools = enrollments
+      .filter((e: any) => {
+  // package নিজে paid হলে hide করো
+  if (e.tool?.isPackage === true && e.paymentStatus === "paid") return false;
+  // sourcePackage থেকে আসা tools — paid, free, expired সব দেখাবে
+  // pending, rejected শুধু hide করো
+  if (e.sourcePackage && e.paymentStatus === "pending") return false;
+  if (e.sourcePackage && e.paymentStatus === "rejected") return false;
+  return true;
+})
+      .map((e: any) => {
+        const isExpired =
+          (e.paymentStatus === "paid" || e.paymentStatus === "free") &&
+          e.validUntil &&
+          now > new Date(e.validUntil);
+
+        return {
+          ...e,
+          paymentStatus: isExpired ? "expired" : e.paymentStatus,
+        };
+      });
+
+    return { success: true, data: tools, message: "User tools retrieved" };
   } catch (error: any) {
     return { success: false, message: "Failed to retrieve user tools", errors: [error.message] };
   }
 };
- 
