@@ -167,7 +167,7 @@ const approveEnrollment = async (enrollmentId, adminId, validityDays) => {
         ]);
         const itemTitle = course?.title || tool?.name || "Unknown";
         if (student && (course || tool)) {
-            (0, email_1.sendEmail)(student.email, "Enrollment Approved - CodeTutor LMS", "enrollment", {
+            (0, email_1.sendEmail)(student.email, "Enrollment Approved - Skilledustore", "enrollment", {
                 studentName: student.name,
                 courseTitle: itemTitle,
                 dashboardUrl: process.env.FRONTEND_URL + "/dashboard",
