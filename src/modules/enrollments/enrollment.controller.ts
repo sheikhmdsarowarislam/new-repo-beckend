@@ -4,6 +4,7 @@ import { AuthRequest } from "../../middlewares/auth";
 import Enrollment from "./enrollment.model";
 import Tool from "../tools/tool.model";
 import {
+   adminManualEnrollTool, 
   submitManualPayment,
   approveEnrollment,
   rejectEnrollment,
@@ -267,5 +268,33 @@ export const cancelEnrollmentController = catchAsync(async (req: AuthRequest, re
     return sendSuccess(res, enrollment, "Enrollment canceled successfully");
   } catch (error: any) {
     return sendError(res, error.message || "Failed to cancel enrollment", 500);
+  }
+});
+
+export const adminManualEnrollController = catchAsync(async (req: AuthRequest, res: Response) => {
+  try {
+    const userRole = getUserRole(req);
+    if (userRole !== "admin") {
+      return sendError(res, "Unauthorized. Admin access required.", 403);
+    }
+
+    const { userId, toolId, variationDays } = req.body;
+
+    if (!userId) return sendError(res, "User ID is required.", 400);
+    if (!toolId) return sendError(res, "Tool ID is required.", 400);
+
+    const adminId = getUserId(req);
+
+    const result = await adminManualEnrollTool({
+      adminId,
+      userId,
+      toolId,
+      variationDays: variationDays ? Number(variationDays) : undefined,
+    });
+
+    if (!result.success) return sendError(res, result.message || "Failed", 400, result.errors);
+    return sendSuccess(res, result.data, result.message || "Enrolled successfully");
+  } catch (error: any) {
+    return sendError(res, error.message || "Failed", 500);
   }
 });

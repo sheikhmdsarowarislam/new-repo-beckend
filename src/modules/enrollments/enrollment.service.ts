@@ -1253,14 +1253,11 @@ export const getUserTools = async (userId: string): Promise<ServiceResponse<any>
 
     const tools = enrollments
       .filter((e: any) => {
-  // package নিজে paid হলে hide করো
-  if (e.tool?.isPackage === true && e.paymentStatus === "paid") return false;
-  // sourcePackage থেকে আসা tools — paid, free, expired সব দেখাবে
-  // pending, rejected শুধু hide করো
-  if (e.sourcePackage && e.paymentStatus === "pending") return false;
-  if (e.sourcePackage && e.paymentStatus === "rejected") return false;
-  return true;
-})
+        if (e.tool?.isPackage === true && e.paymentStatus === "paid") return false;
+        if (e.sourcePackage && e.paymentStatus === "pending") return false;
+        if (e.sourcePackage && e.paymentStatus === "rejected") return false;
+        return true;
+      })
       .map((e: any) => {
         const isExpired =
           (e.paymentStatus === "paid" || e.paymentStatus === "free") &&
@@ -1273,8 +1270,162 @@ export const getUserTools = async (userId: string): Promise<ServiceResponse<any>
         };
       });
 
-    return { success: true, data: tools, message: "User tools retrieved" };
+    // ✅ Duplicate tool deduplicate — same tool._id হলে active টা রাখো
+    const seen = new Map<string, any>()
+    for (const t of tools) {
+      const toolId = t.tool?._id?.toString()
+      if (!toolId) continue
+      if (!seen.has(toolId)) {
+        seen.set(toolId, t)
+      } else {
+        // আগেরটার চেয়ে এটা বেশি active হলে replace করো
+        const prev = seen.get(toolId)
+        const priority = (status: string) => {
+          if (status === "paid" || status === "free") return 3
+          if (status === "pending") return 2
+          if (status === "expired") return 1
+          return 0
+        }
+        if (priority(t.paymentStatus) > priority(prev.paymentStatus)) {
+          seen.set(toolId, t)
+        }
+      }
+    }
+
+    return { success: true, data: Array.from(seen.values()), message: "User tools retrieved" };
   } catch (error: any) {
     return { success: false, message: "Failed to retrieve user tools", errors: [error.message] };
+  }
+};
+
+// ─────────────────────────────────────────────
+// ADMIN MANUAL TOOL ENROLLMENT
+// ─────────────────────────────────────────────
+export const adminManualEnrollTool = async ({
+  adminId,
+  userId,
+  toolId,
+  variationDays,
+}: {
+  adminId: string;
+  userId: string;
+  toolId: string;
+  variationDays?: number;
+}): Promise<ServiceResponse<any>> => {
+  try {
+    const tool = await Tool.findById(toolId).lean();
+    if (!tool) return { success: false, message: "Tool not found.", errors: [] };
+
+    // Existing active enrollment check
+    const existing = await Enrollment.findOne({
+      student: new Types.ObjectId(userId),
+      tool: new Types.ObjectId(toolId),
+      paymentStatus: { $in: ["paid", "free", "pending"] },
+    });
+
+    if (existing) {
+      const isExpired =
+        (existing.paymentStatus === "paid" || existing.paymentStatus === "free") &&
+        existing.validUntil &&
+        new Date() > new Date(existing.validUntil);
+
+      if (!isExpired) {
+        return {
+          success: false,
+          message: "User already has active access to this tool.",
+          errors: [],
+        };
+      }
+      // expired হলে cancel করে নতুন enrollment দাও
+      await Enrollment.updateOne({ _id: existing._id }, { paymentStatus: "expired" });
+    }
+
+    // Price calculate
+    let amountPaid = tool.price;
+    if (tool.discount > 0) {
+      amountPaid = amountPaid - (amountPaid * tool.discount) / 100;
+    }
+
+    let validUntil: Date | null = null;
+
+    if (variationDays && tool.variations?.length > 0) {
+      const variation = tool.variations.find((v: any) => v.days === variationDays);
+      if (variation) amountPaid = variation.price;
+      validUntil = new Date(Date.now() + variationDays * 86_400_000);
+    }
+
+    amountPaid = Math.round(amountPaid * 100) / 100;
+
+    const enrollment = await Enrollment.create({
+      student: userId,
+      tool: toolId,
+      itemType: "tool",
+      amountPaid,
+      paymentStatus: "paid",
+      paymentMethod: "free",
+      approvedBy: new Types.ObjectId(adminId),
+      approvedAt: new Date(),
+      validUntil,
+    });
+
+    // Package হলে included tools ও enroll করো
+    if (tool.isPackage && tool.includedTools?.length > 0) {
+      for (const includedToolId of tool.includedTools) {
+        try {
+          const existingIncluded = await Enrollment.findOne({
+            student: new Types.ObjectId(userId),
+            tool: new Types.ObjectId(includedToolId.toString()),
+          });
+
+          if (existingIncluded) {
+            await Enrollment.findByIdAndUpdate(existingIncluded._id, {
+              paymentStatus: "paid",
+              paymentMethod: "free",
+              amountPaid: 0,
+              approvedBy: new Types.ObjectId(adminId),
+              approvedAt: new Date(),
+              validUntil,
+              sourcePackage: toolId,
+            });
+          } else {
+            await Enrollment.create({
+              student: userId,
+              tool: new Types.ObjectId(includedToolId.toString()),
+              itemType: "tool",
+              amountPaid: 0,
+              paymentStatus: "paid",
+              paymentMethod: "free",
+              approvedBy: new Types.ObjectId(adminId),
+              approvedAt: new Date(),
+              validUntil,
+              sourcePackage: toolId,
+            });
+          }
+        } catch (err: any) {
+          console.error(`Included tool enrollment failed for ${includedToolId}:`, err?.message);
+        }
+      }
+    }
+
+    // enrollmentCount update
+    await Tool.updateOne({ _id: toolId }, { $inc: { enrollmentCount: 1 } });
+
+    // Notification পাঠাও
+    createNotification(
+      userId,
+      "enrollment_approved",
+      `You have been manually enrolled in "${tool.name}" by admin.${
+        validUntil ? ` Access valid until ${validUntil.toLocaleDateString()}.` : ""
+      }`,
+      toolId
+    ).catch(console.error);
+
+    return {
+      success: true,
+      data: enrollment,
+      message: "User enrolled successfully.",
+    };
+  } catch (error: any) {
+    return { success: false, message: "Failed to enroll user.", errors: [error.message] };
   }
 };

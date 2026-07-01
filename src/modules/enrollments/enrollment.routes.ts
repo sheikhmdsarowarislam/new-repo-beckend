@@ -15,6 +15,7 @@ import {
 } from "./enrollment.validation"
 
 import {
+  adminManualEnrollController,
   submitPaymentController,
   getPendingEnrollmentsController,
   approveEnrollmentController,
@@ -68,7 +69,12 @@ router.get(
   isAuthenticated,
   getAllEnrollmentsController
 )
-
+// ADMIN MANUAL ENROLL
+router.post(
+  "/admin-enroll",
+  isAuthenticated,
+  adminManualEnrollController
+)
 
 // CANCEL
 router.patch(
